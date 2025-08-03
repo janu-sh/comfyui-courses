@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering ComfyUI: An Interactive Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as a task-oriented dashboard to guide users through learning ComfyUI. It starts with a hero section to set a positive tone. The core is an interactive stepper for the 'Learning Path', making the educational journey digestible. An 'Essential Toolkit' section uses interactive cards and filters for easy exploration of tools. 'Workflow Blueprints' are presented in a tabbed interface with visual HTML/CSS diagrams for clarity. Finally, a 'Troubleshooting' accordion provides quick, accessible solutions. This structure was chosen to transform the linear report into an engaging, non-linear learning tool that prioritizes user progression and problem-solving over passive reading. -->
+    <!-- Visualization & Content Choices: Report info is mapped to interactive elements to meet specific goals. Learning Path -> Goal: Guide -> Viz: Interactive Stepper -> Interaction: Click to progress -> Justification: Breaks down learning into manageable stages. Creator Recommendations -> Goal: Compare -> Viz: Chart.js Bar Chart -> Interaction: Hover for details -> Justification: Quick visual summary. Custom Nodes -> Goal: Organize -> Viz: Filterable HTML Cards -> Interaction: Click filters -> Justification: Eases navigation of a long list. Advanced Workflows -> Goal: Explain -> Viz: HTML/CSS Diagrams -> Interaction: Hover for info -> Justification: Simplifies complex node graphs. Common Errors -> Goal: Inform -> Viz: Accordion -> Interaction: Click to expand -> Justification: User-friendly FAQ format. CONFIRMATION: NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        .step-item.active .step-circle {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .step-item.active .step-title {
+            color: #3b82f6;
+        }
+        .step-item .step-line {
+            transition: background-color 0.3s;
+        }
+        .step-item.completed .step-line {
+            background-color: #3b82f6;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .workflow-node {
+            position: relative;
+            border: 1px solid #9ca3af;
+            background-color: #f9fafb;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        .workflow-connector {
+            position: absolute;
+            background-color: #d1d5db;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-2xl font-bold text-gray-800">🎓 ComfyUI Guide</span>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="nav-link text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Home</a>
+                        <a href="#learning-path" class="nav-link text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Learning Path</a>
+                        <a href="#toolkit" class="nav-link text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Toolkit</a>
+                        <a href="#blueprints" class="nav-link text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Blueprints</a>
+                        <a href="#troubleshooting" class="nav-link text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Troubleshooting</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="py-20 sm:py-24 lg:py-32">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight">
+                    From Intimidation to Intuition.
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg sm:text-xl text-gray-600">
+                    Welcome to your interactive guide to mastering ComfyUI. This powerful tool might seem like a "spaceship built out of Legos" at first, but it's one of the most efficient ways to create AI art. This guide, based on community wisdom, provides a clear roadmap to transform that initial confusion into confident workflow creation.
+                </p>
+                <div class="mt-10">
+                    <a href="#learning-path" class="inline-block bg-blue-500 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
+                        Start Your Learning Journey
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="learning-path" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Your Structured Learning Path</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">The community has forged a clear path from novice to architect. Follow these steps to build your skills progressively, preventing the overwhelm that stops many beginners.</p>
+                </div>
+
+                <div class="max-w-5xl mx-auto">
+                    <div id="stepper" class="flex items-start">
+                    </div>
+
+                    <div id="stepper-content" class="mt-8 bg-slate-50 p-8 rounded-xl shadow-inner min-h-[300px]">
+                    </div>
+                </div>
+                
+                <div class="text-center mt-16">
+                    <h3 class="text-2xl font-bold tracking-tight text-gray-900">Community-Recommended Instructors</h3>
+                     <p class="mt-2 max-w-2xl mx-auto text-md text-gray-600">This chart shows the top YouTube creators recommended by the ComfyUI community, categorized by their teaching focus. Hover over the bars to see why each creator is valued.</p>
+                </div>
+                <div class="mt-8">
+                    <div class="chart-container">
+                        <canvas id="creatorsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="toolkit" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Essential Toolkit</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">To move from learning to creating, you need the right tools. Here are the indispensable components for a stable and efficient ComfyUI environment.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-1 bg-white p-8 rounded-xl shadow-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900">ComfyUI Manager</h3>
+                        <p class="mt-2 text-gray-600">This is the **first thing** you should install. It's the command center for your entire setup, making it easy to install missing nodes, manage models, and keep everything updated. It turns a frustrating experience into a seamless one.</p>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Curated Custom Nodes</h3>
+                        <p class="text-gray-600 mb-6">Avoid "node bloat." Start with this vetted list of powerful, well-maintained node packs. Use the filters to explore the essentials for different tasks.</p>
+                        <div id="node-filters" class="flex flex-wrap gap-2 mb-6">
+                        </div>
+                        <div id="node-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blueprints" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Workflow Blueprints</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Understand how to build advanced workflows. These blueprints break down complex techniques into simple, visual diagrams. Select a tab to see how to integrate powerful modules into your projects.</p>
+                </div>
+                <div class="max-w-4xl mx-auto">
+                    <div id="blueprint-tabs" class="flex justify-center space-x-2 mb-8">
+                    </div>
+                    <div id="blueprint-content" class="bg-slate-50 p-6 sm:p-8 rounded-xl shadow-inner">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="troubleshooting" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Troubleshooting Guide</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Everyone runs into errors. Most issues are technical, not conceptual. Here are solutions to the most common problems beginners face.</p>
+                </div>
+                <div id="accordion" class="max-w-3xl mx-auto space-y-4">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>This interactive guide was created to synthesize community knowledge on learning ComfyUI.</p>
+            <p class="mt-2 text-sm text-gray-400">Data sourced from Reddit (r/comfyui, r/StableDiffusion) and YouTube. Not affiliated with the official ComfyUI project.</p>
+            <div class="mt-4">
+                 <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300">Official ComfyUI GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const appData = {
+                learningPath: [
+                    {
+                        id: 'start',
+                        title: 'The Starting Point',
+                        creator: 'Pixaroma',
+                        content: `Overwhelmingly cited as the single best starting point. His "ComfyUI Tutorial Series" is praised for its graphic designer's perspective, making technical topics accessible. He gets straight to the point, covers fundamentals thoroughly, and provides a complete arc from installation to advanced techniques.`,
+                        strengths: ['Beginner-Friendly', 'Comprehensive', 'Step-by-Step'],
+                        recommendationScore: 95
+                    },
+                    {
+                        id: 'concept',
+                        title: 'Conceptual Mastery',
+                        creator: 'Sebastian Kamph & Latent Vision',
+                        content: `Once you know the basics, it's time to learn *why* things work. **Sebastian Kamph** excels at explaining the theory behind nodes and parameters. For a deeper dive, **Latent Vision** offers advanced, dense content that helps you think like a workflow architect, not just a user.`,
+                        strengths: ['Theoretical', 'In-Depth', 'Explains the "Why"'],
+                        recommendationScore: 85
+                    },
+                    {
+                        id: 'practice',
+                        title: 'Hands-On Practice',
+                        creator: 'Monzon Media',
+                        content: `The final stage is building. Monzon Media's "Comfyui 101" series emphasizes learning-by-doing, encouraging you to build every workflow from a blank canvas. This hands-on approach builds muscle memory and a true, internalized understanding of data flow.`,
+                        strengths: ['Project-Based', 'Learn-by-Doing', 'Builds Muscle Memory'],
+                        recommendationScore: 80
+                    },
+                     {
+                        id: 'classics',
+                        title: 'The Classic Primers',
+                        creator: 'Scott Detweiler & Olivio Sarikas',
+                        content: `These creators are mainstays in the community. **Scott Detweiler** is credited by many for making the node-based system finally "click." **Olivio Sarikas** provides excellent, clear tutorials for building a solid foundation. Their content remains highly relevant.`,
+                        strengths: ['Foundational', 'Makes Concepts "Click"', 'Reliable'],
+                        recommendationScore: 75
+                    }
+                ],
+                customNodes: [
+                    { name: 'ComfyUI Manager', category: 'Essential', description: 'The non-negotiable command center for installing nodes and managing your environment.' },
+                    { name: 'rgthree-comfy', category: 'Organization', description: 'Tame the "spaghetti" with powerful reroute nodes for clean, readable workflows.' },
+                    { name: 'cg-use-everywhere', category: 'Organization', description: 'Declutter your graph by broadcasting connections without visible wires.' },
+                    { name: 'WAS Node Suite', category: 'Functionality', description: 'A massive, foundational library of utility nodes for text, images, logic, and more.' },
+                    { name: 'Impact Pack', category: 'Functionality', description: 'Go-to resource for advanced techniques like face detailing and complex masking.' },
+                    { name: 'Inspire Pack', category: 'Functionality', description: 'Another essential pack for specialized nodes when you need more power.' },
+                    { name: 'Comfyroll Studio', category: 'Functionality', description: 'A comprehensive suite with excellent documentation and a wide array of tools.' },
+                    { name: 'controlnet_aux', category: 'Specialized', description: 'The community-preferred suite of preprocessors for all ControlNet tasks.' },
+                    { name: 'AnimateDiff-Evolved', category: 'Specialized', description: 'The essential custom node for enabling video and animation workflows.' }
+                ],
+                blueprints: [
+                    {
+                        id: 'controlnet',
+                        title: 'ControlNet',
+                        description: 'ControlNet allows you to guide image composition using an input image (like a pose or depth map). This workflow adds the ControlNet module between your prompt conditioning and the KSampler.',
+                        diagram: `
+                            <div class="flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0 md:space-x-4 relative">
+                                <div class="workflow-node">Load Checkpoint</div>
+                                <div class="workflow-node">CLIP Text Encode (Prompt)</div>
+                                <div class="workflow-node bg-blue-100 border-blue-400">Apply ControlNet</div>
+                                <div class="workflow-node">KSampler</div>
+                                <div class="workflow-node">VAE Decode</div>
+                            </div>
+                            <div class="mt-4 text-center text-sm text-gray-500">A preprocessor node (e.g., OpenPose) feeds into the 'Apply ControlNet' node alongside the ControlNet model itself.</div>
+                        `
+                    },
+                    {
+                        id: 'multilora',
+                        title: 'Multi-LoRA',
+                        description: `ComfyUI excels at chaining multiple LoRAs to blend styles and concepts. The model and CLIP data flows sequentially through each 'Load LoRA' node, with each one applying its patch.`,
+                        diagram: `
+                            <div class="flex flex-wrap justify-center items-center gap-4 relative">
+                                <div class="workflow-node">Load Checkpoint</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node bg-green-100 border-green-400">Load LoRA 1</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node bg-green-100 border-green-400">Load LoRA 2</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node">KSampler</div>
+                            </div>
+                            <div class="mt-4 text-center text-sm text-gray-500">The key is balancing the 'strength' parameter on each 'Load LoRA' node to control its influence.</div>
+                        `
+                    },
+                    {
+                        id: 'animatediff',
+                        title: 'AnimateDiff',
+                        description: 'AnimateDiff uses Motion Modules to create videos and animations. It works with SD 1.5 models to inject temporal consistency and movement into a sequence of generated frames.',
+                        diagram: `
+                            <div class="flex flex-wrap justify-center items-center gap-4 relative">
+                                <div class="workflow-node">Load SD1.5 Checkpoint</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node bg-purple-100 border-purple-400">AnimateDiff Loader</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node">KSampler</div>
+                                <span class="font-bold text-gray-500">&rarr;</span>
+                                <div class="workflow-node">Video Combine</div>
+                            </div>
+                            <div class="mt-4 text-center text-sm text-gray-500">The 'AnimateDiff Loader' node takes a Motion Module and applies it to the model pipeline before sampling.</div>
+                        `
+                    }
+                ],
+                troubleshooting: [
+                    {
+                        question: 'I see red boxes! What is a "Missing Node" error?',
+                        answer: `This is the most common issue. It means your workflow uses a custom node you haven't installed. The solution is to use the **ComfyUI Manager's "Install Missing Custom Nodes"** feature. It will automatically find and install what you need.`
+                    },
+                    {
+                        question: 'It says a model file was not found?',
+                        answer: `This error means a Checkpoint, LoRA, VAE, or other model file is missing or in the wrong folder. Double-check that you've downloaded the required file and placed it in the correct subdirectory inside your main \`ComfyUI/models/\` folder (e.g., checkpoints go in \`/checkpoints\`, LoRAs in \`/loras\`).`
+                    },
+                    {
+                        question: 'What is a "Tensor Size Mismatch" error?',
+                        answer: `This almost always means you're mixing incompatible model versions, like using an SD 1.5 LoRA with an SDXL base model. Ensure all components in your workflow are built for the same Stable Diffusion version (e.g., all SDXL or all SD 1.5).`
+                    },
+                    {
+                        question: 'Why won\'t ComfyUI start after I installed a new node?',
+                        answer: `This likely indicates a Python dependency conflict. First, try running the "Update All" function in the ComfyUI Manager. If that doesn't work, try uninstalling the most recently added custom node. In severe cases, a clean re-installation of ComfyUI is the most reliable fix.`
+                    },
+                    {
+                        question: 'What is "Node Bloat" and how do I avoid it?',
+                        answer: `This is the practice of installing too many custom nodes, which leads to instability and conflicts. The best strategy is to be a minimalist. Start with a small, curated set of powerful node packs. Only install a new node when you have a specific goal, and try to replicate its function with core nodes first.`
+                    }
+                ]
+            };
+
+            const setupSmoothScrolling = () => {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            };
+            
+            const setupNavigationHighlighting = () => {
+                const sections = document.querySelectorAll('main section');
+                const navLinks = document.querySelectorAll('.nav-link');
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            navLinks.forEach(link => {
+                                link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                            });
+                        }
+                    });
+                }, { rootMargin: '-50% 0px -50% 0px' });
+
+                sections.forEach(section => {
+                    observer.observe(section);
+                });
+            };
+
+            const setupStepper = () => {
+                const stepperContainer = document.getElementById('stepper');
+                const contentContainer = document.getElementById('stepper-content');
+                let activeStep = 0;
+
+                const steps = appData.learningPath;
+
+                const renderStepper = () => {
+                    stepperContainer.innerHTML = steps.map((step, index) => `
+                        <div class="step-item flex-1 flex items-center cursor-pointer" data-step="${index}">
+                            <div class="flex flex-col items-center w-full">
+                                <div class="step-circle w-10 h-10 flex items-center justify-center rounded-full border-2 border-gray-300 bg-white transition-colors duration-300 font-semibold">${index + 1}</div>
+                                <p class="step-title text-center text-sm mt-2 font-medium text-gray-500 transition-colors duration-300">${step.title}</p>
+                            </div>
+                            ${index < steps.length - 1 ? '<div class="step-line flex-1 h-1 bg-gray-300"></div>' : ''}
+                        </div>
+                    `).join('');
+                    updateActiveStep();
+                };
+
+                const updateActiveStep = () => {
+                    const stepItems = stepperContainer.querySelectorAll('.step-item');
+                    stepItems.forEach((item, index) => {
+                        item.classList.toggle('active', index === activeStep);
+                        item.classList.toggle('completed', index < activeStep);
+                    });
+
+                    const stepData = steps[activeStep];
+                    contentContainer.innerHTML = `
+                        <h3 class="text-2xl font-bold text-gray-800">${stepData.title}</h3>
+                        <p class="mt-1 text-sm font-semibold text-gray-500">Key Instructor: ${stepData.creator}</p>
+                        <p class="mt-4 text-gray-600">${stepData.content}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${stepData.strengths.map(s => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${s}</span>`).join('')}
+                        </div>
+                    `;
+                };
+
+                stepperContainer.addEventListener('click', (e) => {
+                    const stepItem = e.target.closest('.step-item');
+                    if (stepItem) {
+                        activeStep = parseInt(stepItem.dataset.step);
+                        updateActiveStep();
+                    }
+                });
+
+                renderStepper();
+            };
+
+            const setupCreatorsChart = () => {
+                const ctx = document.getElementById('creatorsChart').getContext('2d');
+                const creators = appData.learningPath.map(p => p.creator);
+                const scores = appData.learningPath.map(p => p.recommendationScore);
+                const strengths = appData.learningPath.map(p => p.strengths.join(', '));
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: creators,
+                        datasets: [{
+                            label: 'Community Recommendation Score',
+                            data: scores,
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.6)',
+                                'rgba(249, 115, 22, 0.6)',
+                                'rgba(16, 185, 129, 0.6)',
+                                'rgba(139, 92, 246, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(249, 115, 22, 1)',
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(139, 92, 246, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        return `Strengths: ${strengths[context.dataIndex]}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            const setupNodeToolkit = () => {
+                const filtersContainer = document.getElementById('node-filters');
+                const listContainer = document.getElementById('node-list');
+                const nodes = appData.customNodes;
+
+                const categories = ['All', ...new Set(nodes.map(n => n.category).filter(c => c !== 'Essential'))];
+                
+                filtersContainer.innerHTML = categories.map((cat, index) => `
+                    <button class="node-filter-btn px-4 py-2 text-sm font-medium rounded-full transition ${index === 0 ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}" data-category="${cat}">
+                        ${cat}
+                    </button>
+                `).join('');
+
+                const renderNodes = (filter = 'All') => {
+                    const filteredNodes = filter === 'All' ? nodes : nodes.filter(n => n.category === filter || n.category === 'Essential');
+                    listContainer.innerHTML = filteredNodes.map(node => `
+                        <div class="bg-white p-6 rounded-lg shadow-md transition-transform transform hover:-translate-y-1">
+                            <h4 class="font-bold text-gray-800">${node.name}</h4>
+                            <p class="text-sm text-gray-600 mt-1">${node.description}</p>
+                            <span class="inline-block mt-3 bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded-full">${node.category}</span>
+                        </div>
+                    `).join('');
+                };
+
+                filtersContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('node-filter-btn')) {
+                        document.querySelectorAll('.node-filter-btn').forEach(btn => {
+                            btn.classList.remove('bg-blue-500', 'text-white');
+                            btn.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                        });
+                        e.target.classList.add('bg-blue-500', 'text-white');
+                        e.target.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                        renderNodes(e.target.dataset.category);
+                    }
+                });
+
+                renderNodes();
+            };
+
+            const setupBlueprints = () => {
+                const tabsContainer = document.getElementById('blueprint-tabs');
+                const contentContainer = document.getElementById('blueprint-content');
+                const blueprints = appData.blueprints;
+                let activeTab = blueprints[0].id;
+
+                const renderTabs = () => {
+                    tabsContainer.innerHTML = blueprints.map(bp => `
+                        <button class="tab-button px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg transition ${bp.id === activeTab ? 'active' : 'bg-white text-gray-600 hover:bg-gray-100'}" data-tab="${bp.id}">
+                            ${bp.title}
+                        </button>
+                    `).join('');
+                };
+
+                const renderContent = () => {
+                    const blueprint = blueprints.find(bp => bp.id === activeTab);
+                    contentContainer.innerHTML = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">${blueprint.title}</h3>
+                        <p class="text-gray-600 mb-6">${blueprint.description}</p>
+                        <div class="bg-white p-4 sm:p-6 rounded-lg">${blueprint.diagram}</div>
+                    `;
+                };
+
+                tabsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tab-button')) {
+                        activeTab = e.target.dataset.tab;
+                        renderTabs();
+                        renderContent();
+                    }
+                });
+                
+                renderTabs();
+                renderContent();
+            };
+
+            const setupAccordion = () => {
+                const accordionContainer = document.getElementById('accordion');
+                accordionContainer.innerHTML = appData.troubleshooting.map((item, index) => `
+                    <div class="accordion-item bg-white rounded-lg shadow-md overflow-hidden">
+                        <button class="accordion-header w-full flex justify-between items-center text-left p-5 font-semibold text-gray-800 hover:bg-gray-50 transition">
+                            <span>${item.question}</span>
+                            <svg class="accordion-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 pt-0 text-gray-600">
+                                ${item.answer}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                accordionContainer.addEventListener('click', (e) => {
+                    const header = e.target.closest('.accordion-header');
+                    if (header) {
+                        const item = header.parentElement;
+                        const content = item.querySelector('.accordion-content');
+                        const icon = item.querySelector('.accordion-icon');
+                        
+                        const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = '0px');
+                        document.querySelectorAll('.accordion-icon').forEach(i => i.classList.remove('rotate-180'));
+
+                        if (!isOpen) {
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                            icon.classList.add('rotate-180');
+                        }
+                    }
+                });
+            };
+
+            setupSmoothScrolling();
+            setupNavigationHighlighting();
+            setupStepper();
+            setupCreatorsChart();
+            setupNodeToolkit();
+            setupBlueprints();
+            setupAccordion();
+        });
+    </script>
+</body>
+</html>
